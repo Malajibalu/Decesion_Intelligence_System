@@ -1,120 +1,141 @@
-🧠 Decision Negotiation Agent
-Multi-Agent Decision Intelligence System (Google AI Agents Intensive Capstone)
-The Decision Negotiation Agent is a multi-agent decision support system designed to help users navigate complex dilemmas. Built as part of Google’s 5-Day AI Agents Intensive, this project models a miniature “internal committee” of four expert agents—Logic, Emotion, Long-Term, and Values—to simulate human-style reasoning and deliver transparent, auditable decisions.
-Instead of relying on a single LLM, the system forces multiple specialized agents to debate, score trade-offs, provide written justifications, and finally vote on the best option. A Gemini-powered Supervisor (via ADK) consolidates all insights into one structured, explainable decision.
-🌟 Key Capabilities
-✔ Multi-Agent Debate Engine
-Each agent evaluates the user’s dilemma using a unique lens:
-🧠 LogicAgent — time, money, productivity, short-term optimization
-❤️ EmotionAgent — stress, relief, emotional well-being
-🕰 LongTermAgent — regret minimization, future upside
-🎯 ValuesAgent — alignment with core life values (career, peace, relationships, finances, health)
-✔ Supervisor LLM for Final Arbitration
-The Supervisor LLM reviews all agent proposals and outputs strict JSON:
-{
- "final_decision": "...",
- "reasoning": "...",
- "agent_votes": { ... }
-}
-✔ Interpretability & Analytics Layer
-To make decisions transparent and trustworthy, the system includes:
-Agent Conflict Analyzer – detects disagreements and computes a conflict score
-Decision Stability Score – evaluates confidence in the final decision (0–100)
-Option Battle Cards – consulting-style side-by-side comparison tables
-Agent Personality Cards – strengths, weaknesses, and persona descriptions
-✔ Test Harness for Edge Cases
-Includes predefined ambiguous, complex, and high-conflict decision scenarios to ensure robustness and consistency.
-🧩 System Architecture
-1. Decision Input Layer
-User provides:
-the dilemma (question)
-list of possible choices (options)
-optional context such as stress level, financial pressure, personal priorities
-2. Specialized Agent Modules
-Each agent implements a decide() method that returns:
-{
- "agent_name": "ValuesAgent",
- "preferred_option": "Option A",
- "scores": { "Option A": {...}, "Option B": {...} },
- "explanation": "Detailed reasoning here..."
-}
-3. Supervisor Arbitration (Gemini + ADK)
-The Supervisor fuses all agent reports into:
-one final choice
-a synthesized explanation
-a vote breakdown
-optional override notes if agent disagreement is high
-4. Evaluation Layer
-This layer transforms raw agent outputs into:
-conflict matrices
-stability scoring
-battle cards
-formatted insights for dashboards
-📝 Example Scenario
-Question:
-“Should I accept a promotion that doubles my hours but increases salary, or stay in my current flexible role?”
-Process:
-LogicAgent prioritizes earning potential
-EmotionAgent warns about stress
-LongTermAgent evaluates future regret
-ValuesAgent checks alignment with long-term personal goals
-Supervisor Output:
-final decision
-merged reasoning
-vote counts
-stability score
-This flow demonstrates the system's ability to justify decisions in an interpretable, auditable way.
-🧠 Why This Matters
-Decision-making systems must be:
-transparent (no black-box answers)
-structured (consistent JSON)
-interpretable (conflict and stability metrics)
-human-aligned (values, emotions, long-term impact)
-This project showcases a next-generation pattern in agentic AI:
-LLMs that collaborate, argue, and negotiate — not just predict.
-🛠 Tech Stack
-Google Gemini
-ADK (Agents Development Kit)
-Python (orchestration, scoring, evaluation)
-JSON for structured communication
-📂 Project Structure
-(Can be customized based on your repo)
-/decision-negotiation-agent
-│
-├── agents/
-│   ├── logic_agent.py
-│   ├── emotion_agent.py
-│   ├── longterm_agent.py
-│   └── values_agent.py
-│
-├── supervisor/
-│   └── supervisor_agent.py
-│
-├── evaluation/
-│   ├── conflict_analyzer.py
-│   ├── stability_score.py
-│   └── battle_cards.py
-│
-├── tests/
-│   ├── scenario_simple.json
-│   ├── scenario_conflict.json
-│   └── scenario_complex.json
-│
-└── decision_runner.ipynb
-🚀 How to Run
-Install dependencies
-Configure ADK with Gemini API access
-Run the notebook or decision runner script
-Pass your question + options
-View:
-agent reasoning
-supervisor final output
-conflict + stability scores
-📌 Summary
-This project demonstrates:
-Strong multi-agent architecture design
-Real-world decision modeling
-Interpretability & governance tooling
-LLM-Ops style structured evaluation
-Hands-on proficiency with Google’s ADK and Gemini models
-It’s an ideal showcase of agent engineering, reasoning frameworks, and AI product design.
+# Decision Negotiation Agent – Multi-Agent Decision Intelligence System
+
+This project is our capstone for Google’s 5-Day AI Agents Intensive.  
+It is a **multi-agent decision intelligence system** that helps a user make tough choices
+(e.g., “accept a promotion vs keep a flexible role”) by letting multiple specialized
+agents debate, then letting an LLM supervisor make a final call.
+
+## Core Idea
+
+Instead of asking a single LLM for advice, this system simulates a *mini internal committee*:
+
+- 🧠 **LogicAgent** – optimizes time, money, and short-term productivity.
+- ❤️ **EmotionAgent** – cares about stress, relief, and emotional well-being.
+- 🕰 **LongTermAgent** – looks at future regret and long-term gain.
+- 🎯 **ValuesAgent** – checks alignment with core life values (career, health, relationships, finances, peace).
+
+Each agent scores the options, explains its reasoning, and casts a vote.
+A **Supervisor LLM** then reads all proposals and returns a structured JSON
+decision: final choice, reasoning, and a vote breakdown.
+
+---
+
+## System Architecture
+
+1. **Decision Input Layer**
+   - User provides:
+     - `question` – the dilemma (e.g., *“Should I accept a promotion that doubles my hours?”*)
+     - `options` – list of possible actions
+     - optional `context` – stress level, financial pressure, priorities, etc.
+
+2. **Specialized Agents**
+   - Each agent implements a `decide(decision)` interface.
+   - Returns:
+     ```json
+     {
+       "agent_name": "...",
+       "preferred_option": "...",
+       "scores": { "Option A": {...}, "Option B": {...} },
+       "explanation": "Natural language reasoning..."
+     }
+     ```
+
+3. **LLM Supervisor (Gemini via ADK)**
+   - Ingests all agent proposals.
+   - Outputs **strict JSON**:
+     ```json
+     {
+       "final_decision": "...",
+       "reasoning": "...",
+       "agent_votes": {
+         "EmotionAgent": "...",
+         "LogicAgent": "...",
+         "LongTermAgent": "...",
+         "ValuesAgent": "..."
+       }
+     }
+     ```
+
+4. **Evaluation & Observability**
+   - Inspired by Day 4 of the AI Agents Intensive, the notebook includes:
+     - Ambiguous / complex / edge-case test scenarios
+     - Debug prints of agent proposals
+     - Supervisor raw JSON
+     - Structured evaluation objects for analysis
+
+---
+
+## Interpretability & Analytics Features
+
+To make the agent system **explainable** and **auditable**, I added:
+
+### ⚔️ Agent Conflict Analyzer
+- Computes agreement/disagreement between agents.
+- Outputs pairwise relationships and an overall **conflict score (0–1)**:
+  - `0.0` → perfect agreement
+  - higher values → more internal conflict
+
+### 📈 Decision Stability Score (0–100)
+- Aggregates:
+  - agent consensus,
+  - score variance across options,
+  - supervisor–agent agreement.
+- Produces a single **stability score**:
+  - `> 85` → very stable decision
+  - `70–85` → moderately stable
+  - `< 50` → unstable / needs review
+
+### ⚔️ Option Battle Card (Side-by-Side Comparison)
+- Builds a table comparing each option across all agents:
+  - emotional_relief / stress_risk
+  - productivity / time_cost / money_impact
+  - future_regret / future_gain
+  - values alignment (career, relationships, health, finances, peace)
+- Shows:
+  - Agent-by-agent scores per option
+  - Vote counts
+  - Final winner option
+
+This looks and feels like a **consulting-grade analysis dashboard** for decisions.
+
+### 🎴 Agent Personality Cards
+- Each agent has a defined **persona**:
+  - tagline, strengths, weaknesses, and personality description.
+- Cards make the system more interpretable and human-readable
+  (e.g., *“LongTermAgent – forward-thinking, strategic, cautious about regret”*).
+
+---
+
+## Example Scenario
+
+**Question:**  
+> “Should I accept the promotion that doubles my work hours but increases salary,
+> or stay in my current role with less pay but more flexibility?”
+
+- All four agents independently analyze the trade-offs.
+- The supervisor reviews their proposals and returns:
+  - `final_decision`: *“Accept the promotion with doubled hours and higher salary”* (for this test context)
+  - A natural language explanation merging emotional, logical, long-term, and values-based reasoning.
+  - A full vote breakdown and stability score.
+
+This demonstrates the system’s ability to:
+- model trade-offs,
+- surface internal disagreements,
+- and justify its recommendation in an auditable way.
+
+---
+
+## Technical Highlights
+
+- Built on **Gemini + ADK** patterns from Google’s 5-Day AI Agents Intensive.
+- Uses:
+  - custom scoring logic for each agent,
+  - a supervisor LLM for final arbitration,
+  - structured JSON outputs for downstream evaluation,
+  - multi-scenario test harness (ambiguous / invalid / complex decisions),
+  - interpretable analytics (conflict, stability, battle cards, personas).
+
+This project shows my ability to:
+- design **multi-agent LLM systems**,
+- build **evaluation & observability tooling**,
+- and present **complex AI behavior in a way that non-technical stakeholders can understand**.
